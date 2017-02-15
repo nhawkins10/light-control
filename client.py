@@ -1,4 +1,4 @@
-import requests, threading, sys
+import requests, threading, sys, RPi.GPIO as GPIO
 
 id = 0
 
@@ -31,8 +31,10 @@ def getStatus():
 def setOutput(value):
 	if (value):
 		print("ON")
+		GPIO.output(1, 1)
 	else: 
 		print("OFF")
+		GPIO.output(1, 0)
 	
 
 #
@@ -49,6 +51,10 @@ def set_interval(func, sec):
     t = threading.Timer(sec, func_wrapper)
     t.start()
     return t
+	
+	
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(1, GPIO.OUT)
 	
 # a number must be passed in as the first command line argument indicating the ID of the node
 if (len(sys.argv) > 1):
