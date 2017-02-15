@@ -1,5 +1,8 @@
 <html>
 <head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Light Control</title>
+
 <script>
 	var refreshInterval;
 	
@@ -19,14 +22,36 @@
 	/**
 	 * Registers a change to the switch with the given ID.
 	 * 
-	 * @param id - the ID of the changed switch
-	 * @param checked - boolean indicating if the switch is on or off
+	 * @param item - the switch element to toggle
 	 * 
 	 * @return - none
 	 */
-	function toggle(id, checked) {
-		console.log("Number " + id + " " + checked);
-		postChange(id, checked);
+	function toggle(item) {
+		var id = item.getAttribute("name");
+		
+		updateSwitchStyling(item);
+			  
+		postChange(id, item.classList.contains("checked"));
+	}
+	
+	function updateSwitchStyling(item) {
+		var newList = [];
+		
+		//removed 'checked' class
+		if (item.classList.contains("checked")) {
+			newList = [];
+			for (var i=0; i<item.classList.length; i++) {
+				if (item.classList[i] != "checked") {
+					newList.push(item.classList[i]);
+				}
+			}
+			
+		//adding 'checked' class
+		} else {
+			newList = item.classList;
+			newList.add("checked");
+		}
+		item.classList = newList;
 	}
 	
 	/** 
@@ -89,14 +114,93 @@
 		document.getElementById("switchList").innerHTML = "";
 		
 		for (var i=0; i<list.length; i++) {
-			document.getElementById("switchList").innerHTML += 
-				"<label for='" + list[i].id + "'>" + list[i].id + "</label>"
-				+ "<input type='checkbox'  name='" + list[i].id + "' id='toggle" + list[i].id + "' onchange='javascript:toggle(this.name, this.checked)' " + (list[i].on ? "checked" : "") + "/>";
+			//document.getElementById("switchList").innerHTML += 
+			//	"<li><label for='" + list[i].id + "'>" + list[i].id + "</label>"
+			//	+ "<input type='checkbox'  name='" + list[i].id + "' id='toggle" + list[i].id + "' onchange='javascript:toggle(this.name, this.checked)' " + (list[i].on ? "checked" : "") + "/></li>";
+				
+			document.getElementById("switchList").innerHTML+=
+				"<li><div class='switch " + (list[i].on ? "checked" : "") + "' name='" + list[i].id + "' onclick='javascript:toggle(this)'><div class='switchToggle'>" + list[i].id + "</div></div>";
 		}
 	}
 </script>
+
+<style>
+	body {
+		background: #fafafa;
+		padding: 0;
+		margin: 0;
+		font-family: sans-serif;
+	}
+	
+	.header {
+		padding: 20px;
+		background: #4a5863;
+		color: #fafafa;
+	}
+	
+	.header > h2 {
+		padding: 0;
+		margin: 0;
+	}
+	
+	#switchList {
+		list-style-type: none;
+		margin: 0;
+		padding: 20px;
+	}
+	
+	#switchList > li {
+		display: inline-block;
+	}
+	
+	.switch {
+		width: 80px;
+		height: 42px;
+		background: #ffffff;
+		border-radius: 20px;
+		box-shadow: 0px 1px 5px 0px #9e9e9e inset;
+		display: inline-block;
+		margin: 0px 20px 10px 20px;
+	}
+	
+	.switchToggle {
+		width: 39px;
+		height: 39px;
+		border-radius: 20px;
+		border: 2px solid #c3c3c3;
+		background: #fff;
+		box-shadow: 2px 0px 0px #f0eeee;
+		color: #888;
+		text-align: center;
+		line-height: 40px;
+		font-size: 16px;
+	}
+	
+	.checked {
+		background: #8dbe8f;
+	}
+	
+	.checked > .switchToggle {
+		margin-left: 40px;
+		box-shadow: -2px 0px 0px #aba9a9
+	}
+	
+	.switch-all {
+		margin-top: 20px;
+	}
+</style>
 </head>
 <body onload="javascript:startRefresh()">
+	<div class="header">
+		<h2>Light Control</h2>
+		<navigation>
+		
+		</navigation>
+	</div>
+	<!--<div class="switch switch-all" onclick="javascript:updateSwitchStyling(this)">
+		<div class="switchToggle">All</div>
+	</div>
+	<hr>-->
 	<ul id="switchList"></ul>
 </body>
 </html>
