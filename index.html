@@ -1,0 +1,102 @@
+<html>
+<head>
+<script>
+	var refreshInterval;
+	
+	/**
+	 * Creates the refresh interval. Called on page load.
+	 * 
+	 * @return - none
+	 */
+	function startRefresh() {
+		getState();
+		
+		refreshInterval = setInterval(function() {
+			getState();
+		}, 1000);
+	}
+	
+	/**
+	 * Registers a change to the switch with the given ID.
+	 * 
+	 * @param id - the ID of the changed switch
+	 * @param checked - boolean indicating if the switch is on or off
+	 * 
+	 * @return - none
+	 */
+	function toggle(id, checked) {
+		console.log("Number " + id + " " + checked);
+		postChange(id, checked);
+	}
+	
+	/** 
+	 * Notifies the server of a change in a switch.
+	 * 
+	 * @param id - the id of the changed switch
+	 * @param checked - the new value of the changed switch
+	 *
+	 * @return - none
+	 */
+	function postChange(id, checked) {
+		var httpRequest = new XMLHttpRequest();
+		httpRequest.open("GET", "/" + id + "=" + checked);
+		httpRequest.send();
+	}
+	
+	/**
+	 * Requests the state of all nodes stored on the server.
+	 * 
+	 * @return - none
+	 */
+	function getState() {
+		var httpRequest = new XMLHttpRequest();
+		httpRequest.onreadystatechange = setState.bind(this, httpRequest);
+		httpRequest.open("GET", "/state");
+		httpRequest.send();
+	}
+	
+	/**
+	 * Processes the response from getState()
+	 * 
+	 * @param httpRequest - the request object
+	 * 
+	 * @return - none
+	 */
+	function setState(httpRequest) {
+		if (httpRequest.readyState === XMLHttpRequest.DONE) {
+			if (httpRequest.status === 200) {
+				var json = JSON.parse(httpRequest.responseText);
+				if (json.status.indicator == "S") {
+					generateSwitches(json.data)
+				} else {
+					console.log("Server returned an error status.");
+				}
+			} else {
+				console.log("HTTP error status returned.");
+			}
+		}
+	}
+	
+	/**
+	 * Creates the HTML for the switches based on the 
+	 * state data received from the server.
+	 * 
+	 * @param list - the list of nodes from the server
+	 * 
+	 * @return - none
+	 */
+	function generateSwitches(list) {
+		document.getElementById("switchList").innerHTML = "";
+		
+		for (var i=0; i<list.length; i++) {
+			document.getElementById("switchList").innerHTML += 
+				"<label for='" + list[i].id + "'>" + list[i].id + "</label>"
+				+ "<input type='checkbox'  name='" + list[i].id + "' id='toggle" + list[i].id + "' onchange='javascript:toggle(this.name, this.checked)' " + (list[i].on ? "checked" : "") + "/>";
+		}
+	}
+</script>
+</head>
+<body onload="javascript:startRefresh()">
+	<ul id="switchList"></ul>
+</body>
+</html>
